@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+asyncpg
+redis[asyncio]
+pydantic-settings
+httpx
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp
+prometheus-client
+python-dotenv
