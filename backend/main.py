@@ -1,22 +1,27 @@
 import logging
+import pathlib
+import sys
 import time
 from contextlib import asynccontextmanager
 
-import redis.asyncio as aioredis
-from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse
-from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+ROOT = pathlib.Path(__file__).resolve().parent.parent  # makes top-level `pipelines/` importable
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-from config import settings
-from db.health import check_mlflow, check_postgres, check_redis
-from db.migrations import apply_migrations
-from db.pool import close_pool, create_pool
+import redis.asyncio as aioredis  # noqa: E402
+from arq import create_pool as create_arq_pool  # noqa: E402
+from arq.connections import RedisSettings  # noqa: E402
+from fastapi import FastAPI, Request, Response  # noqa: E402
+from fastapi.responses import JSONResponse  # noqa: E402
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor  # noqa: E402
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest  # noqa: E402
+
+from api.ingest import router as ingest_router  # noqa: E402
+from config import settings  # noqa: E402
+from db.health import check_mlflow, check_postgres, check_redis  # noqa: E402
+from db.migrations import apply_migrations  # noqa: E402
+from db.pool import close_pool, create_pool  # noqa: E402
+from telemetry import setup_tracing  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,35 +29,25 @@ REQUESTS = Counter("http_requests_total", "HTTP requests", ["method", "path", "s
 LATENCY = Histogram("http_request_duration_seconds", "Request latency", ["path"])
 
 
-def setup_tracing() -> None:
-    provider = TracerProvider(resource=Resource.create({"service.name": settings.service_name}))
-    provider.add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=settings.otlp_endpoint, insecure=True))
-    )
-    trace.set_tracer_provider(provider)
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup
     pool = await create_pool()
     app.state.pool = pool
-    app.state.redis = aioredis.Redis(
-        host=settings.redis_host,
-        port=settings.redis_port,
-        password=settings.redis_password,
-        decode_responses=True,
-    )
+    app.state.redis = aioredis.Redis(host=settings.redis_host, port=settings.redis_port,
+                                     password=settings.redis_password, decode_responses=True)
+    app.state.arq = await create_arq_pool(RedisSettings(
+        host=settings.redis_host, port=settings.redis_port, password=settings.redis_password))
     await apply_migrations(pool, settings.migrations_dir)
     yield
-    # shutdown
+    await app.state.arq.aclose()
     await app.state.redis.aclose()
     await close_pool()
 
 
 setup_tracing()
-app = FastAPI(title="NeuroFlow API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="NeuroFlow API", version="0.2.0", lifespan=lifespan)
 FastAPIInstrumentor.instrument_app(app)  # OpenTelemetry ASGI middleware
+app.include_router(ingest_router)
 
 
 @app.middleware("http")
@@ -73,10 +68,8 @@ async def health():
         "mlflow": await check_mlflow(settings.mlflow_tracking_uri),
     }
     ok = all(checks.values())
-    return JSONResponse(
-        status_code=200 if ok else 503,
-        content={"status": "ok" if ok else "degraded", "checks": checks},
-    )
+    return JSONResponse(status_code=200 if ok else 503,
+                        content={"status": "ok" if ok else "degraded", "checks": checks})
 
 
 @app.get("/metrics")

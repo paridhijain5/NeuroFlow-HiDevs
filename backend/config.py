@@ -24,8 +24,14 @@ class Settings(BaseSettings):
     otlp_endpoint: str = "http://localhost:4317"
     service_name: str = "neuroflow-api"
 
-    # LLM provider key (used from Task 3 onward)
+    # LLM providers
     llm_api_key: str = ""
+    openai_api_key: str = ""
+    openai_base_url: str = ""
+    anthropic_api_key: str = ""
+
+    # Ingestion: where uploaded files are stored (shared between API and worker)
+    upload_dir: str = "./uploads"
 
     # Directory holding the .sql schema files applied by db/migrations.py
     migrations_dir: str = "../infra/init"

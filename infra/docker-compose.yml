@@ -27,7 +27,6 @@ services:
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
-    # base image lacks the Postgres driver, so install it first
     command: >
       bash -c "pip install --quiet psycopg2-binary &&
       mlflow server --host 0.0.0.0 --port 5000
@@ -41,7 +40,9 @@ services:
         condition: service_healthy
 
   api:
-    build: ../backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     ports: ["8000:8000"]
     depends_on: [postgres, redis, mlflow]
     env_file: ../.env
@@ -51,11 +52,15 @@ services:
       MLFLOW_TRACKING_URI: http://mlflow:5000
       OTLP_ENDPOINT: http://jaeger:4317
       MIGRATIONS_DIR: /app/migrations
+      UPLOAD_DIR: /app/uploads
     volumes:
       - ./init:/app/migrations:ro
+      - uploads:/app/uploads
 
   worker:
-    build: ../backend
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     command: python -m worker
     depends_on: [postgres, redis]
     env_file: ../.env
@@ -64,6 +69,9 @@ services:
       REDIS_HOST: redis
       MLFLOW_TRACKING_URI: http://mlflow:5000
       OTLP_ENDPOINT: http://jaeger:4317
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -74,3 +82,4 @@ services:
 volumes:
   postgres_data:
   mlflow_artifacts:
+  uploads:
