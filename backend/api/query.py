@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
+from backend.monitoring.instrument import traced_retrieval
 from pipelines.generation.generator import stream_generation
 
 router = APIRouter()
@@ -34,19 +35,40 @@ def get_provider(request: Request):
 
 async def _settings_kwargs(request: Request, pipeline_id: UUID) -> dict:
     """Task 38: record pipeline version + apply the pipeline's generation settings (if repo is wired)."""
+    guard = getattr(request.app.state, "resilience", None)      # Task 40
+    base = {"guard": guard} if guard is not None else {}
     repo = getattr(request.app.state, "pipeline_repo", None)
     if repo is None:
-        return {}
+        return base
     rec = await repo.get(pipeline_id)
     if rec is None or rec.status == "archived":
-        return {}
-    return {"pipeline_id": str(pipeline_id), "pipeline_version": rec.version,
+        return base
+    return {**base, "pipeline_id": str(pipeline_id), "pipeline_version": rec.version,
             "gen_params": {"temperature": rec.config["generation"]["temperature"]},
             "auto_evaluate": rec.config["evaluation"]["auto_evaluate"]}
 
 
+async def _enforce_pipeline_limit(request: Request, pipeline_id: UUID) -> None:
+    """Task 40: per-pipeline token bucket (config.rate_limit_rpm) -> 429 + Retry-After. Checked at POST time."""
+    guard = getattr(request.app.state, "resilience", None)
+    repo = getattr(request.app.state, "pipeline_repo", None)
+    if guard is None or repo is None:
+        return
+    rec = await repo.get(pipeline_id)
+    rpm = rec.config.get("rate_limit_rpm") if rec else None
+    if rpm:
+        await guard.enforce_pipeline_limit(pipeline_id, rpm)
+
+
+async def _retrieve(request: Request, pipeline_id: UUID, query: str, run_id: str):
+    """Task 42: retrieval.pipeline parent span + latency histogram (your retrieve() adds the child spans)."""
+    return await traced_retrieval(lambda: retrieve(request, pipeline_id, query),
+                                  pipeline_id=str(pipeline_id), run_id=run_id)
+
+
 @router.post("/query")
 async def create_query(body: QueryRequest, request: Request):
+    await _enforce_pipeline_limit(request, body.pipeline_id)
     run_id = str(uuid.uuid4())
     redis, db = request.app.state.redis, request.app.state.db
 
@@ -55,7 +77,7 @@ async def create_query(body: QueryRequest, request: Request):
         await redis.set(f"run:{run_id}", body.model_dump_json(), ex=300)
         return {"run_id": run_id}
 
-    ctx = await retrieve(request, body.pipeline_id, body.query)
+    ctx = await _retrieve(request, body.pipeline_id, body.query, run_id)
     text, final = [], {}
     async for ev in stream_generation(
         run_id=run_id, query=body.query, ctx=ctx, query_type=ctx.query_type,
@@ -87,7 +109,7 @@ async def stream_query(run_id: str, request: Request):
     async def producer():
         try:
             await queue.put(_sse({"type": "retrieval_start"}))
-            ctx = await retrieve(request, body.pipeline_id, body.query)
+            ctx = await _retrieve(request, body.pipeline_id, body.query, run_id)
             await queue.put(_sse({"type": "retrieval_complete",
                                   "chunk_count": len(ctx.chunks),
                                   "sources": list(ctx.sources)}))

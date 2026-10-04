@@ -1,0 +1,39 @@
+# Add-on for your existing infra/docker-compose.yml (the existing file wasn't visible to me - either merge these
+# services into it, or run both files together):
+#     docker compose -f docker-compose.yml -f docker-compose.observability.yml up -d
+# Prometheus  http://localhost:9090   (alerts: /alerts)     Grafana  http://localhost:3000 (admin/admin)
+# Jaeger UI   http://localhost:16686  (OTLP gRPC :4317)
+services:
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./prometheus/${PROM_CONFIG:-prometheus.yml}:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports: ["9090:9090"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      # Postgres datasource (fine-tuning job history table) - provisioning interpolates these:
+      PG_HOST: ${PG_HOST:-postgres:5432}
+      PG_DATABASE: ${PG_DATABASE:-neuroflow}
+      PG_USER: ${PG_USER:-postgres}
+      PG_PASSWORD: ${PG_PASSWORD:-postgres}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports: ["16686:16686", "4317:4317", "4318:4318"]
+
+# API container: set OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317 so traces reach Jaeger.

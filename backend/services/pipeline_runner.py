@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Protocol
 
 from backend.models.pipeline import PipelineConfig
+from backend.monitoring.instrument import traced_retrieval
 from pipelines.generation.generator import stream_generation
 
 
@@ -30,13 +31,16 @@ class DefaultPipelineRunner:
     NOTE: not exercised by the offline tests.
     """
 
-    def __init__(self, *, retrieve: Callable[..., Awaitable[Any]], provider, db, redis):
-        self.retrieve, self.provider, self.db, self.redis = retrieve, provider, db, redis
+    def __init__(self, *, retrieve: Callable[..., Awaitable[Any]], provider, db, redis, guard=None):
+        self.retrieve, self.provider, self.db, self.redis, self.guard = retrieve, provider, db, redis, guard
 
     async def run(self, pipeline, query: str, force_eval: bool = False) -> RunResult:
         cfg = PipelineConfig.model_validate(pipeline.config)
+        if self.guard is not None and cfg.rate_limit_rpm:      # Task 40: per-pipeline token bucket
+            await self.guard.enforce_pipeline_limit(pipeline.id, cfg.rate_limit_rpm)
         run_id, t0 = str(uuid.uuid4()), time.perf_counter()
-        ctx = await self.retrieve(cfg, pipeline.id, query)
+        ctx = await traced_retrieval(lambda: self.retrieve(cfg, pipeline.id, query),
+                                     pipeline_id=str(pipeline.id), run_id=run_id)
         retrieval_ms = int((time.perf_counter() - t0) * 1000)
 
         parts: list[str] = []
@@ -47,6 +51,7 @@ class DefaultPipelineRunner:
             retrieval_latency_ms=retrieval_ms,
             gen_params={"temperature": cfg.generation.temperature},
             auto_evaluate=force_eval or cfg.evaluation.auto_evaluate,
+            guard=self.guard,
         ):
             if ev["type"] == "token":
                 parts.append(ev["delta"])

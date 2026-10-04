@@ -1,0 +1,182 @@
+[
+  {
+    "query": "What do we know about Eiffel Tower?",
+    "answer": "The Eiffel Tower was completed in 1889 in Paris. It stands about 330 metres tall.",
+    "context": "The Eiffel Tower was completed in 1889 in Paris. It stands about 330 metres tall.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about Eiffel Tower?",
+    "answer": "The Eiffel Tower was completed in 1889 in Paris. Penguins migrate across Antarctic glaciers every winter.",
+    "context": "The Eiffel Tower was completed in 1889 in Paris. It stands about 330 metres tall.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about Eiffel Tower?",
+    "answer": "Penguins migrate across Antarctic glaciers every winter. Medieval blacksmiths forged swords using charcoal furnaces.",
+    "context": "The Eiffel Tower was completed in 1889 in Paris. It stands about 330 metres tall.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about photosynthesis?",
+    "answer": "Photosynthesis converts sunlight into chemical energy in chloroplasts. Chlorophyll absorbs mostly red and blue light.",
+    "context": "Photosynthesis converts sunlight into chemical energy in chloroplasts. Chlorophyll absorbs mostly red and blue light.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about photosynthesis?",
+    "answer": "Photosynthesis converts sunlight into chemical energy in chloroplasts. Medieval blacksmiths forged swords using charcoal furnaces.",
+    "context": "Photosynthesis converts sunlight into chemical energy in chloroplasts. Chlorophyll absorbs mostly red and blue light.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about photosynthesis?",
+    "answer": "Medieval blacksmiths forged swords using charcoal furnaces. Volcanic basalt columns formed along the Icelandic coastline.",
+    "context": "Photosynthesis converts sunlight into chemical energy in chloroplasts. Chlorophyll absorbs mostly red and blue light.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about Python?",
+    "answer": "Python was created by Guido van Rossum and released in 1991. It emphasizes code readability.",
+    "context": "Python was created by Guido van Rossum and released in 1991. It emphasizes code readability.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about Python?",
+    "answer": "Python was created by Guido van Rossum and released in 1991. Volcanic basalt columns formed along the Icelandic coastline.",
+    "context": "Python was created by Guido van Rossum and released in 1991. It emphasizes code readability.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about Python?",
+    "answer": "Volcanic basalt columns formed along the Icelandic coastline. Jazz pianists improvised complex harmonies during midnight concerts.",
+    "context": "Python was created by Guido van Rossum and released in 1991. It emphasizes code readability.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about the Nile?",
+    "answer": "The Nile flows north through Egypt into the Mediterranean Sea. It is among the longest rivers in Africa.",
+    "context": "The Nile flows north through Egypt into the Mediterranean Sea. It is among the longest rivers in Africa.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about the Nile?",
+    "answer": "The Nile flows north through Egypt into the Mediterranean Sea. Jazz pianists improvised complex harmonies during midnight concerts.",
+    "context": "The Nile flows north through Egypt into the Mediterranean Sea. It is among the longest rivers in Africa.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about the Nile?",
+    "answer": "Jazz pianists improvised complex harmonies during midnight concerts. Saffron harvesting requires delicate handpicking of crimson stigmas.",
+    "context": "The Nile flows north through Egypt into the Mediterranean Sea. It is among the longest rivers in Africa.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about Mount Everest?",
+    "answer": "Mount Everest is the highest mountain above sea level. It sits on the border of Nepal and Tibet.",
+    "context": "Mount Everest is the highest mountain above sea level. It sits on the border of Nepal and Tibet.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about Mount Everest?",
+    "answer": "Mount Everest is the highest mountain above sea level. Saffron harvesting requires delicate handpicking of crimson stigmas.",
+    "context": "Mount Everest is the highest mountain above sea level. It sits on the border of Nepal and Tibet.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about Mount Everest?",
+    "answer": "Saffron harvesting requires delicate handpicking of crimson stigmas. Submarine cables carry fibre signals beneath the Atlantic.",
+    "context": "Mount Everest is the highest mountain above sea level. It sits on the border of Nepal and Tibet.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about vaccines?",
+    "answer": "Vaccines train the immune system to recognize pathogens. Booster doses maintain protective antibody levels.",
+    "context": "Vaccines train the immune system to recognize pathogens. Booster doses maintain protective antibody levels.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about vaccines?",
+    "answer": "Vaccines train the immune system to recognize pathogens. Submarine cables carry fibre signals beneath the Atlantic.",
+    "context": "Vaccines train the immune system to recognize pathogens. Booster doses maintain protective antibody levels.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about vaccines?",
+    "answer": "Submarine cables carry fibre signals beneath the Atlantic. Origami cranes symbolize longevity within Japanese tradition.",
+    "context": "Vaccines train the immune system to recognize pathogens. Booster doses maintain protective antibody levels.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about mitochondria?",
+    "answer": "The mitochondria produce most of the cell's ATP. They have their own small circular DNA.",
+    "context": "The mitochondria produce most of the cell's ATP. They have their own small circular DNA.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about mitochondria?",
+    "answer": "The mitochondria produce most of the cell's ATP. Origami cranes symbolize longevity within Japanese tradition.",
+    "context": "The mitochondria produce most of the cell's ATP. They have their own small circular DNA.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about mitochondria?",
+    "answer": "Origami cranes symbolize longevity within Japanese tradition. Chess grandmasters memorize opening repertoires through relentless practice.",
+    "context": "The mitochondria produce most of the cell's ATP. They have their own small circular DNA.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about Bitcoin?",
+    "answer": "Bitcoin launched in 2009 under the pseudonym Satoshi Nakamoto. Transactions are recorded on a public blockchain.",
+    "context": "Bitcoin launched in 2009 under the pseudonym Satoshi Nakamoto. Transactions are recorded on a public blockchain.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about Bitcoin?",
+    "answer": "Bitcoin launched in 2009 under the pseudonym Satoshi Nakamoto. Chess grandmasters memorize opening repertoires through relentless practice.",
+    "context": "Bitcoin launched in 2009 under the pseudonym Satoshi Nakamoto. Transactions are recorded on a public blockchain.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about Bitcoin?",
+    "answer": "Chess grandmasters memorize opening repertoires through relentless practice. Glassblowers shape molten silica using wooden paddles.",
+    "context": "Bitcoin launched in 2009 under the pseudonym Satoshi Nakamoto. Transactions are recorded on a public blockchain.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about Jupiter?",
+    "answer": "Jupiter is the largest planet in the solar system. Its Great Red Spot is a persistent storm.",
+    "context": "Jupiter is the largest planet in the solar system. Its Great Red Spot is a persistent storm.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about Jupiter?",
+    "answer": "Jupiter is the largest planet in the solar system. Glassblowers shape molten silica using wooden paddles.",
+    "context": "Jupiter is the largest planet in the solar system. Its Great Red Spot is a persistent storm.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about Jupiter?",
+    "answer": "Glassblowers shape molten silica using wooden paddles. Honeybees communicate nectar locations through waggle dances.",
+    "context": "Jupiter is the largest planet in the solar system. Its Great Red Spot is a persistent storm.",
+    "human_score": 0.0
+  },
+  {
+    "query": "What do we know about TCP and UDP?",
+    "answer": "TCP provides reliable ordered delivery of data between hosts. UDP trades reliability for lower latency.",
+    "context": "TCP provides reliable ordered delivery of data between hosts. UDP trades reliability for lower latency.",
+    "human_score": 1.0
+  },
+  {
+    "query": "What do we know about TCP and UDP?",
+    "answer": "TCP provides reliable ordered delivery of data between hosts. Honeybees communicate nectar locations through waggle dances.",
+    "context": "TCP provides reliable ordered delivery of data between hosts. UDP trades reliability for lower latency.",
+    "human_score": 0.5
+  },
+  {
+    "query": "What do we know about TCP and UDP?",
+    "answer": "Honeybees communicate nectar locations through waggle dances. Penguins migrate across Antarctic glaciers every winter.",
+    "context": "TCP provides reliable ordered delivery of data between hosts. UDP trades reliability for lower latency.",
+    "human_score": 0.0
+  }
+]

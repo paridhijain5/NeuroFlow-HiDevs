@@ -1,94 +1,54 @@
-"""Ingestion backpressure based on Redis queue depth (LLEN queue:ingest).
+"""Ingestion backpressure based on Redis queue depth (LLEN queue:ingest)."""
+from __future__ import annotations
 
-    depth > 100  -> 503  {"error": "ingestion_queue_full", "queue_depth": N, "retry_after": 30}
-    depth > 50   -> 202  + {"warning": "high_queue_depth", "estimated_wait_minutes": N}
-    otherwise    -> 200
-"""
-import logging
 import math
-import os
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
-from starlette.requests import Request
-from starlette.responses import JSONResponse
+from backend.monitoring import metrics
 
-from .redis_client import get_redis
-
-logger = logging.getLogger("resilience.backpressure")
-
-QUEUE_KEY = os.getenv("INGEST_QUEUE_KEY", "queue:ingest")
-REJECT_DEPTH = 100
-WARN_DEPTH = 50
-RETRY_AFTER_SECONDS = 30
-DOCS_PER_WORKER_PER_MINUTE = float(os.getenv("DOCS_PER_WORKER_PER_MINUTE", "6"))
-
-
-def _worker_count() -> int:
-    return max(1, int(os.getenv("WORKER_COUNT", "2")))
+QUEUE_KEY = "queue:ingest"
+WARN_DEPTH = 50          # depth  > 50  -> 202 + warning
+FULL_DEPTH = 100         # depth  > 100 -> 503
+RETRY_AFTER_S = 30
+DOCS_PER_WORKER_PER_MIN = 6      # ADAPT: measured ingestion throughput of one worker
+HEARTBEAT_PREFIX = "worker:heartbeat:"   # workers SET this key with EX 30 (see register_worker_heartbeat)
 
 
 @dataclass
 class BackpressureDecision:
-    queue_depth: int
-    status_code: int = 200
-    body: Optional[dict] = field(default=None)  # warning / error payload
+    status: str                    # "ok" (200) | "warn" (202) | "full" (503)
+    depth: int
+    workers: int
+    estimated_wait_minutes: int
 
-    @property
-    def rejected(self) -> bool:
-        return self.status_code == 503
-
-    @property
-    def warning(self) -> Optional[dict]:
-        return self.body if self.status_code == 202 else None
-
-
-class IngestQueueFull(Exception):
-    def __init__(self, decision: BackpressureDecision):
-        self.decision = decision
-        super().__init__("ingestion queue full")
+    def body(self) -> dict:
+        if self.status == "full":
+            return {"error": "ingestion_queue_full", "queue_depth": self.depth, "retry_after": RETRY_AFTER_S}
+        if self.status == "warn":
+            return {"warning": "high_queue_depth", "estimated_wait_minutes": self.estimated_wait_minutes}
+        return {}
 
 
-async def queue_depth(redis_client=None) -> int:
-    return int(await (redis_client or get_redis()).llen(QUEUE_KEY))
+async def count_workers(redis) -> int:
+    n = 0
+    async for _ in redis.scan_iter(match=f"{HEARTBEAT_PREFIX}*", count=100):
+        n += 1
+    return n
 
 
-def decide(depth: int) -> BackpressureDecision:
-    if depth > REJECT_DEPTH:
-        return BackpressureDecision(
-            depth, 503,
-            {"error": "ingestion_queue_full", "queue_depth": depth,
-             "retry_after": RETRY_AFTER_SECONDS},
-        )
-    if depth > WARN_DEPTH:
-        wait = math.ceil(depth / (_worker_count() * DOCS_PER_WORKER_PER_MINUTE))
-        return BackpressureDecision(
-            depth, 202,
-            {"warning": "high_queue_depth", "estimated_wait_minutes": max(1, wait)},
-        )
-    return BackpressureDecision(depth, 200)
+async def register_worker_heartbeat(redis, worker_id: str, ttl: int = 30) -> None:
+    """Call every ~10s from each ingestion worker."""
+    await redis.set(f"{HEARTBEAT_PREFIX}{worker_id}", "1", ex=ttl)
 
 
-async def check_ingest_backpressure(redis_client=None) -> BackpressureDecision:
-    depth = await queue_depth(redis_client)
-    decision = decide(depth)
-    if decision.status_code != 200:
-        logger.warning("Ingest backpressure: depth=%s -> %s", depth, decision.status_code)
-    return decision
+async def queue_depth(redis) -> int:
+    return int(await redis.llen(QUEUE_KEY))
 
 
-async def enforce_ingest_backpressure(redis_client=None) -> BackpressureDecision:
-    """Raises IngestQueueFull on 503; otherwise returns the decision (200 or 202)."""
-    decision = await check_ingest_backpressure(redis_client)
-    if decision.rejected:
-        raise IngestQueueFull(decision)
-    return decision
-
-
-async def ingest_queue_full_handler(request: Request, exc: IngestQueueFull) -> JSONResponse:
-    """Register with: app.add_exception_handler(IngestQueueFull, ingest_queue_full_handler)"""
-    return JSONResponse(
-        status_code=503,
-        content=exc.decision.body,
-        headers={"Retry-After": str(RETRY_AFTER_SECONDS)},
-    )
+async def check_backpressure(redis) -> BackpressureDecision:
+    depth = await queue_depth(redis)
+    metrics.queue_depth.set(depth)
+    workers = await count_workers(redis)
+    wait = math.ceil(depth / (max(workers, 1) * DOCS_PER_WORKER_PER_MIN))
+    status = "full" if depth > FULL_DEPTH else "warn" if depth > WARN_DEPTH else "ok"
+    return BackpressureDecision(status, depth, workers, wait)
