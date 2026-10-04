@@ -21,3 +21,9 @@ A production-grade multi-modal LLM/RAG platform: ingestion, hybrid retrieval, ro
 
 ## Stack
 Python 3.11 · FastAPI · PostgreSQL + pgvector · Redis · MLflow · Server-Sent Events for streaming.
+
+## Live Deployment
+
+- API: https://<your-app>.up.railway.app
+- Health: https://<your-app>.up.railway.app/health
+- MLflow: https://<your-mlflow>.up.railway.app
