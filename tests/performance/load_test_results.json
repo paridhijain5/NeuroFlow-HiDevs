@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-10-04T12:01:16.587364+00:00",
+  "users": 50,
+  "spawn_rate": 5.0,
+  "run_time_seconds": 300,
+  "total_requests": 75,
+  "total_failures": 75,
+  "error_rate": 1.0,
+  "query": {
+    "requests": 0,
+    "failures": 0,
+    "avg_ms": null,
+    "p50_ms": null,
+    "p95_ms": null,
+    "p99_ms": null
+  },
+  "endpoints": {
+    "POST /auth/token": {
+      "requests": 75,
+      "failures": 75,
+      "p95_ms": 5300
+    },
+    "POST /query": {
+      "requests": 0,
+      "failures": 0,
+      "p95_ms": null
+    }
+  },
+  "thresholds": {
+    "p95_ms_lt": 5000,
+    "error_rate_lt": 0.02
+  },
+  "passed": false
+}

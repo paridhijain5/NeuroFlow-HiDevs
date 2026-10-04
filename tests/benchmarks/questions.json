@@ -1,0 +1,370 @@
+[
+  {
+    "id": "q01",
+    "question": "What new network architecture does the paper propose?",
+    "keywords": [
+      "transformer",
+      "attention mechanisms"
+    ]
+  },
+  {
+    "id": "q02",
+    "question": "What does scaled dot-product attention compute?",
+    "keywords": [
+      "scaled dot-product attention"
+    ]
+  },
+  {
+    "id": "q03",
+    "question": "Why is the dot product scaled by the square root of the key dimension?",
+    "keywords": [
+      "extremely small gradients"
+    ]
+  },
+  {
+    "id": "q04",
+    "question": "What is multi-head attention?",
+    "keywords": [
+      "multi-head attention"
+    ]
+  },
+  {
+    "id": "q05",
+    "question": "How many parallel attention heads does the base model use?",
+    "keywords": [
+      "parallel attention layers"
+    ]
+  },
+  {
+    "id": "q06",
+    "question": "How does reducing the dimension of each head affect cost?",
+    "keywords": [
+      "reduced dimension"
+    ]
+  },
+  {
+    "id": "q07",
+    "question": "How is the encoder stack structured?",
+    "keywords": [
+      "stack of n"
+    ]
+  },
+  {
+    "id": "q08",
+    "question": "What sub-layers does each encoder layer contain?",
+    "keywords": [
+      "feed-forward network",
+      "self-attention mechanism"
+    ]
+  },
+  {
+    "id": "q09",
+    "question": "How are residual connections used?",
+    "keywords": [
+      "residual connection"
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "What normalization is applied after each sub-layer?",
+    "keywords": [
+      "layer normalization"
+    ]
+  },
+  {
+    "id": "q11",
+    "question": "How does the decoder prevent attending to future positions?",
+    "keywords": [
+      "masking"
+    ]
+  },
+  {
+    "id": "q12",
+    "question": "What is the inner-layer dimensionality of the feed-forward network?",
+    "keywords": [
+      "inner-layer"
+    ]
+  },
+  {
+    "id": "q13",
+    "question": "How does the model inject information about token position?",
+    "keywords": [
+      "positional encodings"
+    ]
+  },
+  {
+    "id": "q14",
+    "question": "Which functions are used for the positional encodings?",
+    "keywords": [
+      "sine and cosine"
+    ]
+  },
+  {
+    "id": "q15",
+    "question": "Why use sinusoidal positional encodings instead of learned ones?",
+    "keywords": [
+      "extrapolate"
+    ]
+  },
+  {
+    "id": "q16",
+    "question": "How are embedding weights shared with the output layer?",
+    "keywords": [
+      "pre-softmax linear transformation"
+    ]
+  },
+  {
+    "id": "q17",
+    "question": "Why use self-attention instead of recurrent layers?",
+    "keywords": [
+      "self-attention",
+      "recurrent layers"
+    ]
+  },
+  {
+    "id": "q18",
+    "question": "What is the benefit regarding maximum path length?",
+    "keywords": [
+      "path length"
+    ]
+  },
+  {
+    "id": "q19",
+    "question": "What is the computational complexity per layer?",
+    "keywords": [
+      "complexity per layer"
+    ]
+  },
+  {
+    "id": "q20",
+    "question": "What datasets were used for training?",
+    "keywords": [
+      "wmt 2014"
+    ]
+  },
+  {
+    "id": "q21",
+    "question": "What vocabulary or tokenization was used?",
+    "keywords": [
+      "byte-pair"
+    ]
+  },
+  {
+    "id": "q22",
+    "question": "What hardware was used to train the models?",
+    "keywords": [
+      "p100"
+    ]
+  },
+  {
+    "id": "q23",
+    "question": "How many training steps did the base model run?",
+    "keywords": [
+      "100,000 steps"
+    ]
+  },
+  {
+    "id": "q24",
+    "question": "Which optimizer was used?",
+    "keywords": [
+      "adam"
+    ]
+  },
+  {
+    "id": "q25",
+    "question": "How was the learning rate scheduled?",
+    "keywords": [
+      "warmup_steps"
+    ]
+  },
+  {
+    "id": "q26",
+    "question": "What regularization techniques were used?",
+    "keywords": [
+      "residual dropout"
+    ]
+  },
+  {
+    "id": "q27",
+    "question": "What label smoothing value was used?",
+    "keywords": [
+      "label smoothing"
+    ]
+  },
+  {
+    "id": "q28",
+    "question": "What BLEU score was reached on English-to-German?",
+    "keywords": [
+      "28.4"
+    ]
+  },
+  {
+    "id": "q29",
+    "question": "What BLEU score was reached on English-to-French?",
+    "keywords": [
+      "41.8"
+    ]
+  },
+  {
+    "id": "q30",
+    "question": "How did the model compare against previous ensembles?",
+    "keywords": [
+      "ensembles"
+    ]
+  },
+  {
+    "id": "q31",
+    "question": "What decoding strategy and length penalty were used?",
+    "keywords": [
+      "beam search"
+    ]
+  },
+  {
+    "id": "q32",
+    "question": "What did ablations show about single-head attention?",
+    "keywords": [
+      "single-head attention"
+    ]
+  },
+  {
+    "id": "q33",
+    "question": "How does reducing the attention key size affect quality?",
+    "keywords": [
+      "attention key size"
+    ]
+  },
+  {
+    "id": "q34",
+    "question": "Do bigger models perform better?",
+    "keywords": [
+      "bigger models"
+    ]
+  },
+  {
+    "id": "q35",
+    "question": "What helps avoid over-fitting?",
+    "keywords": [
+      "over-fitting"
+    ]
+  },
+  {
+    "id": "q36",
+    "question": "How did learned positional embeddings compare?",
+    "keywords": [
+      "learned positional embeddings"
+    ]
+  },
+  {
+    "id": "q37",
+    "question": "Was the model applied to constituency parsing?",
+    "keywords": [
+      "constituency parsing"
+    ]
+  },
+  {
+    "id": "q38",
+    "question": "Which corpus was used for parsing experiments?",
+    "keywords": [
+      "wall street journal"
+    ]
+  },
+  {
+    "id": "q39",
+    "question": "What future work do the authors plan?",
+    "keywords": [
+      "plan to extend"
+    ]
+  },
+  {
+    "id": "q40",
+    "question": "Where can the code be found?",
+    "keywords": [
+      "tensor2tensor"
+    ]
+  },
+  {
+    "id": "q41",
+    "question": "How is encoder-decoder attention used?",
+    "keywords": [
+      "encoder-decoder attention"
+    ]
+  },
+  {
+    "id": "q42",
+    "question": "How is the auto-regressive property preserved?",
+    "keywords": [
+      "auto-regressive property"
+    ]
+  },
+  {
+    "id": "q43",
+    "question": "What is the model dimension of the base configuration?",
+    "keywords": [
+      "512"
+    ]
+  },
+  {
+    "id": "q44",
+    "question": "What prior work reduces sequential computation?",
+    "keywords": [
+      "extended neural gpu"
+    ]
+  },
+  {
+    "id": "q45",
+    "question": "What is the fundamental limitation of recurrent models?",
+    "keywords": [
+      "sequential nature"
+    ]
+  },
+  {
+    "id": "q46",
+    "question": "How is an attention function described?",
+    "keywords": [
+      "key-value pairs"
+    ]
+  },
+  {
+    "id": "q47",
+    "question": "How does additive attention compare with dot-product attention?",
+    "keywords": [
+      "additive attention"
+    ]
+  },
+  {
+    "id": "q48",
+    "question": "Who contributed equally to the work?",
+    "keywords": [
+      "equal contribution"
+    ]
+  },
+  {
+    "id": "q49",
+    "question": "How well does the model learn long-range dependencies?",
+    "keywords": [
+      "long-range dependencies"
+    ]
+  },
+  {
+    "id": "q50",
+    "question": "What was the training cost in FLOPs?",
+    "keywords": [
+      "flops"
+    ]
+  },
+  {
+    "id": "q51",
+    "question": "How were training batches formed?",
+    "keywords": [
+      "training batches"
+    ]
+  },
+  {
+    "id": "q52",
+    "question": "What do attention heads reveal about syntactic or semantic structure?",
+    "keywords": [
+      "syntactic",
+      "semantic"
+    ]
+  }
+]
