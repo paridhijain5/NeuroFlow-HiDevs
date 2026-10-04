@@ -1,0 +1,33 @@
+name: Quality Gate
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # nightly at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
+      - run: pip install -r backend/requirements.txt
+      - name: Check retrieval benchmark
+        run: |
+          # Run retrieval eval against staging
+          python evaluation/retrieval_eval.py --env staging
+          # Fail if MRR drops below 0.55
+          python - <<'PY'
+          import json
+          results = json.load(open('evaluation/retrieval_results.json'))
+          assert results['mrr'] >= 0.55, f"MRR {results['mrr']} below threshold 0.55"
+          PY
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: '{"text": "⚠️ NeuroFlow quality gate failed!"}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

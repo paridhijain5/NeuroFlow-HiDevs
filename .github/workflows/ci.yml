@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
+      - run: pip install ruff mypy
+      - run: ruff check backend/
+      - run: mypy backend/ --ignore-missing-imports
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: {POSTGRES_PASSWORD: testpassword, POSTGRES_DB: neuroflow_test}
+        ports: ['5432:5432']
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
+      - run: pip install -r backend/requirements.txt pytest pytest-cov
+      - run: pytest tests/unit/ -v --cov=backend --cov-report=xml
+      - uses: codecov/codecov-action@v4
+        with: {files: coverage.xml, fail_ci_if_error: false}
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 2}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install detect-secrets pip-audit
+      - name: Scan changed files for secrets
+        run: |
+          [ -f .secrets.baseline ] || detect-secrets scan > .secrets.baseline
+          FILES=$(git diff --name-only --diff-filter=d HEAD~1 HEAD 2>/dev/null || true)
+          if [ -n "$FILES" ]; then detect-secrets-hook --baseline .secrets.baseline $FILES; fi
+      - run: pip-audit -r backend/requirements.txt
+      - run: npm audit --prefix frontend --audit-level=high
